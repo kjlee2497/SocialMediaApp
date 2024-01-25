@@ -4,8 +4,9 @@ import {
     useQueryClient,
     useInfiniteQuery
 } from '@tanstack/react-query'
-import { createUserAccount, signInAccount, signOutAccount } from '../appwrite/api'
-import { INewUser } from '@/types'
+import { createPost, createUserAccount, signInAccount, signOutAccount } from '../appwrite/api'
+import { INewPost, INewUser } from '@/types'
+import { QUERY_KEYS } from './queryKeys'
 
 export const useCreateUserAccount = () => {
     return useMutation({
@@ -26,4 +27,20 @@ export const useSignOutAccount = () => {
     return useMutation({
         mutationFn: signOutAccount
     }) 
+}
+
+export const useCreatePost = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (post: INewPost) => createPost(post),
+// instead of getting recent posts from our cache, we need to pull them again to get the most updated data
+// that's why we need to use React queryClient to invalidate certain query keys
+// we're pulling the queryKeys from an enum to help prevent/spot typos
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_RECENT_POSTS]
+            })
+        }
+    })
 }

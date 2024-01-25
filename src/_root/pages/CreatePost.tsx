@@ -1,9 +1,8 @@
 import PostForm from '@/components/forms/PostForm'
-import React from 'react'
 
 const CreatePost = () => {
   return (
-    <div ckassName="flex flex-1">
+    <div className="flex flex-1">
       <div className="common-container">
         <div className="max-w-5xl flex-start gap-3 justify-start w-full">
           <img 
