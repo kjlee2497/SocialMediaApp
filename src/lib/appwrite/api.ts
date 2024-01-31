@@ -11,7 +11,7 @@ export async function createUserAccount(user: INewUser) {
             user.name
         );
 
-        if(!newAccount) throw Error;
+        if (!newAccount) throw Error;
 
         const avatarUrl = avatars.getInitials(user.name);
 
@@ -52,7 +52,7 @@ export async function saveUserToDB(user: {
     }
 }
 
-export async function signInAccount(user: { email: string; password: string;}) {
+export async function signInAccount(user: { email: string; password: string; }) {
     try {
         const session = await account.createEmailSession(user.email, user.password);
 
@@ -66,18 +66,18 @@ export async function getCurrentUser() {
     try {
         const currentAccount = await account.get();
 
-        if(!currentAccount) throw Error;
+        if (!currentAccount) throw Error;
 
         const currentUser = await databases.listDocuments(
             appwriteConfig.databaseId,
             appwriteConfig.userCollectionId,
             [Query.equal('accountId', currentAccount.$id)]
         )
-        
-        if(!currentUser) throw Error;
+
+        if (!currentUser) throw Error;
 
         return currentUser.documents[0];
-    } catch(e) {
+    } catch (e) {
         console.log(e);
     }
 }
@@ -85,7 +85,7 @@ export async function getCurrentUser() {
 export async function signOutAccount() {
     try {
         const session = await account.deleteSession("current");
-        
+
         return session;
     } catch (e) {
         console.log(e);
@@ -94,23 +94,23 @@ export async function signOutAccount() {
 
 export async function createPost(post: INewPost) {
     try {
-    // Upload image to storage
+        // Upload image to storage
         const uploadedFile = await uploadFile(post.file[0]);
 
-        if(!uploadedFile) throw Error;
-        
-    // Get file url
+        if (!uploadedFile) throw Error;
+
+        // Get file url
         const fileUrl = getFilePreview(uploadedFile.$id);
 
-        if(!fileUrl) {
+        if (!fileUrl) {
             deleteFile(uploadedFile.$id);
             throw Error;
         }
 
-    // Convert tags in an array
+        // Convert tags in an array
         // the code in the replace method is a general expression:
         // "replace all spaces globally with an empty space"
-        const tags = post.tags?.replace(/ /g,'').split(',') || [];
+        const tags = post.tags?.replace(/ /g, '').split(',') || [];
 
         // Save new post to database
         const newPost = await databases.createDocument(
@@ -120,20 +120,20 @@ export async function createPost(post: INewPost) {
             {
                 creator: post.userId,
                 caption: post.caption,
-                imageUrl, fileUrl,
+                imageUrl: fileUrl,
                 imageId: uploadedFile.$id,
                 location: post.location,
                 tags: tags
             }
         )
 
-        if(!newPost) {
+        if (!newPost) {
             await deleteFile(uploadedFile.$id);
             throw Error;
         }
 
         return newPost;
-    } catch(err) {
+    } catch (err) {
         console.log(err);
     }
 }
@@ -147,12 +147,12 @@ export async function uploadFile(file: File) {
         )
 
         return uploadedFile;
-    } catch(err) {
+    } catch (err) {
         console.log(err)
     }
 }
 
-export async function getFilePreview(fileId: string) {
+export function getFilePreview(fileId: string) {
     try {
         const fileUrl = storage.getFilePreview(
             appwriteConfig.storageId,
@@ -160,21 +160,36 @@ export async function getFilePreview(fileId: string) {
             2000,
             2000,
             "top",
-            100,
-        )
+            100
+        );
+
+        if (!fileUrl) throw Error;
 
         return fileUrl;
-    } catch(err) {
-        console.log(err)
+    } catch (error) {
+        console.log(error);
     }
 }
+
 
 export async function deleteFile(fileId: string) {
     try {
         await storage.deleteFile(appwriteConfig.storageId, fileId);
 
-        return {status: 'ok'};
-    } catch(err) {
+        return { status: 'ok' };
+    } catch (err) {
         console.log(err)
     }
+}
+
+export async function getRecentPosts() {
+    const posts = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.postCollectionId,
+        [Query.orderDesc('$createdAt'), Query.limit(20)]
+    )
+
+    if (!posts) throw Error;
+
+    return posts;
 }
