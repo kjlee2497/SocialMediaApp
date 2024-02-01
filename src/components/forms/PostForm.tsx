@@ -12,7 +12,7 @@ import { PostValidation } from "@/lib/validation"
 import { Models } from "appwrite"
 import { useUserContext } from "@/context/AuthContext"
 import { useToast } from "../ui/use-toast"
-import { useCreatePost } from "@/lib/react-query/queriesAndMutations"
+import { useCreatePost, useUpdatePost } from "@/lib/react-query/queriesAndMutations"
 
 type PostFormProps = {
   post?: Models.Document;
@@ -25,6 +25,9 @@ type PostFormProps = {
 const PostForm = ({ post, action }: PostFormProps) => {
   const { mutateAsync: createPost, isPending: isLoadingCreate } = 
   useCreatePost();
+  const { mutateAsync: updatePost, isPending: isLoadingUpdate } = 
+  useUpdatePost();
+
   const { user } = useUserContext();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -43,6 +46,21 @@ const PostForm = ({ post, action }: PostFormProps) => {
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof PostValidation>) {
+    if(post && action === 'Update') {
+      const updatedPost = await updatePost({
+        ...values,
+        postId: post?.$id,
+        imageId: post?.$id,
+        imageUrl: post?.$imageUrl,
+      })
+
+      if(!updatedPost) {
+        toast({ title: 'Please try again' })
+      }
+
+      return navigate(`/posts/${post.$id}`);
+    }
+
     const newPost = await createPost({
       ...values,
       userId: user.id,
