@@ -16,12 +16,13 @@ import { useCreatePost } from "@/lib/react-query/queriesAndMutations"
 
 type PostFormProps = {
   post?: Models.Document;
+  action: 'Create' | 'Update';
 }
 
 // passing in "post" to use as a prop when editing an existing post and for fileUploader
 // parameter is "post", defined as a PostFormProps type of object
 // PostFormProps will take the post prop from Models.Document, if it exists.
-const PostForm = ({ post }: PostFormProps) => {
+const PostForm = ({ post, action }: PostFormProps) => {
   const { mutateAsync: createPost, isPending: isLoadingCreate } = 
   useCreatePost();
   const { user } = useUserContext();

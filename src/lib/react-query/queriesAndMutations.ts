@@ -4,7 +4,7 @@ import {
     useQueryClient,
     useInfiniteQuery
 } from '@tanstack/react-query'
-import { createPost, createUserAccount, getRecentPosts, signInAccount, signOutAccount } from '../appwrite/api'
+import { createPost, createUserAccount, deleteSavedPost, getCurrentUser, getPostById, getRecentPosts, likePost, savePost, signInAccount, signOutAccount } from '../appwrite/api'
 import { INewPost, INewUser } from '@/types'
 import { QUERY_KEYS } from './queryKeys'
 
@@ -49,5 +49,88 @@ export const useGetRecentPosts = () => {
     return useQuery({
         queryKey:[QUERY_KEYS.GET_RECENT_POSTS],
         queryFn: getRecentPosts,
+    })
+}
+
+export const useLikePost = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ postId, likesArray }: { postId: string; likesArray: string[] }) => likePost(postId, likesArray),
+        onSuccess: (data) => {
+//          We need this invalidation so that we can actually fetch 
+//          new data from the server instead of pulling from our cache
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_POST_BY_ID, data?.$id]
+            })
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_RECENT_POSTS]
+            })
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_POSTS]
+            })
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_CURRENT_USER]
+            })
+        }
+    })
+}
+
+export const useSavePost = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ postId, userId }: { postId: string; userId: string }) => savePost(postId, userId),
+        onSuccess: (data) => {
+//          We need this invalidation so that we can actually fetch 
+//          new data from the server instead of pulling from our cache
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_RECENT_POSTS]
+            })
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_POSTS]
+            })
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_CURRENT_USER]
+            })
+        }
+    })
+}
+
+export const useDeleteSavedPost = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ( savedRecordId: string ) => deleteSavedPost(savedRecordId),
+        onSuccess: () => {
+//          We need this invalidation so that we can actually fetch 
+//          new data from the server instead of pulling from our cache
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_RECENT_POSTS]
+            })
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_POSTS]
+            })
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_CURRENT_USER]
+            })
+        }
+    })
+}
+
+export const useGetCurrentUser = () => {
+    return useQuery({
+        queryKey: [QUERY_KEYS.GET_CURRENT_USER],
+        queryFn: getCurrentUser
+    })
+}
+
+export const useGetPostById = (postId: string) => {
+    return useQuery({
+        queryKey: [QUERY_KEYS.GET_POST_BY_ID, postId],
+        queryFn: () => getPostById(postId),
+        enabled: !!postId
+        // when the postId has not changed, do not refetch data.
+        // Enable fetching ONLY for post details of ANOTHER post id.
     })
 }
