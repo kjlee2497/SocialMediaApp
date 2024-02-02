@@ -23,7 +23,6 @@ const Home = () => {
               {posts?.documents.map((post: Models.Document) => (
                 <PostCard post={post} key={post.caption} />
               ))}
-              TEST
             </ul>
           )}
           

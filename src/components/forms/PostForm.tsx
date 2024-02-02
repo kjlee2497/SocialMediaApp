@@ -153,7 +153,11 @@ const PostForm = ({ post, action }: PostFormProps) => {
           <Button 
             type="submit"
             className="shad-button_primary whitespace-nowrap"
+            disabled={isLoadingCreate || isLoadingUpdate}
           >
+            {/* if isLoadingCreate or isLoadingUpdate, then return "Loading..." */}
+            {isLoadingCreate || isLoadingUpdate && 'Loading...'}
+            {action} Post
             Submit</Button>
         </div>
       </form>
