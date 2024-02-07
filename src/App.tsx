@@ -7,9 +7,17 @@ import RootLayout from './_root/RootLayout';
 import { AllUsers, CreatePost, EditPost, Explore, Home, PostDetails, Profile, Saved, UpdateProfile } from './_root/pages';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
+import { Client } from 'appwrite';
 
 
 const App = () => {
+
+  const client = new Client();
+
+  client
+      .setEndpoint('https://cloud.appwrite.io/v1')
+      .setProject('6595a66a349338082881');
+
   return (
     <main className="flex h-screen">
       <Routes>
