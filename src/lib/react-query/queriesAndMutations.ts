@@ -81,7 +81,7 @@ export const useSavePost = () => {
 
     return useMutation({
         mutationFn: ({ postId, userId }: { postId: string; userId: string }) => savePost(postId, userId),
-        onSuccess: (data) => {
+        onSuccess: () => {
 //          We need this invalidation so that we can actually fetch 
 //          new data from the server instead of pulling from our cache
             queryClient.invalidateQueries({
