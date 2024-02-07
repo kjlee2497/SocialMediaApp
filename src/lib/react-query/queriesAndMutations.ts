@@ -162,20 +162,25 @@ export const useDeletePost = () => {
 }
 
 export const useGetPosts = () => {
-    // useInfiniteQuery is a react built in feature
+    // useInfiniteQuery is a React built-in feature
     return useInfiniteQuery({
         queryKey: [QUERY_KEYS.GET_INFINITE_POSTS],
         queryFn: getInfinitePosts,
-        // contains the last page we visited.  If there's no more data, there's no more pages.
+        // Contains the last page we visited. If there's no more data, there's no more pages.
         getNextPageParam: (lastPage) => {
-            if(lastPage && lastPage.documents.length === 0) return undefined;
+            if (lastPage && lastPage.documents.length === 0) return null;
 
             const lastId = lastPage && lastPage.documents[lastPage?.documents.length - 1].$id;
 
-            return lastId;
-        }
-    })
-}
+            // Ensure to return a value of type number | null | undefined
+            return lastId ? parseInt(lastId) : null;
+        },
+        // Provide the initialPageParam property
+        initialPageParam: 0 // Adjust the initial page parameter based on your requirements
+    });
+};
+
+
 
 export const useSearchPosts = (searchTerm : string) => {
     return useQuery({
