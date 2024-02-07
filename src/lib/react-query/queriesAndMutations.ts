@@ -168,9 +168,9 @@ export const useGetPosts = () => {
         queryFn: getInfinitePosts,
         // contains the last page we visited.  If there's no more data, there's no more pages.
         getNextPageParam: (lastPage) => {
-            if(lastPage && lastPage.documents.length === 0) return null;
+            if(lastPage && lastPage.documents.length === 0) return undefined;
 
-            const lastId = lastPage.documents[lastPage?.documents.length - 1].$id;
+            const lastId = lastPage && lastPage.documents[lastPage?.documents.length - 1].$id;
 
             return lastId;
         }

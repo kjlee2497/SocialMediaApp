@@ -21,7 +21,7 @@ const INITIAL_STATE = {
     checkAuthUser: async () => false as boolean,
 };
 
-const AuthContext = createContext<IContextType>(INITIAL_STATE);
+const AuthContext = createContext(INITIAL_STATE);
 
 // Every context needs children because it wraps the entire app and displays whatever is in it
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {

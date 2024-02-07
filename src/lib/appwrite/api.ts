@@ -359,7 +359,6 @@ export async function getInfinitePosts({ pageParam } : { pageParam: number }) {
 }
 
 export async function searchPosts( searchTerm: string ) {
-    const queries: any[] = [Query.orderDesc('$updatedAt'), Query.limit(20)]
 
     try {
         const posts = await databases.listDocuments(
