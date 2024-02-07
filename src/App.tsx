@@ -8,6 +8,7 @@ import { AllUsers, CreatePost, EditPost, Explore, Home, PostDetails, Profile, Sa
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { Client } from 'appwrite';
+import { appwriteConfig } from './lib/appwrite/config';
 
 
 const App = () => {
@@ -15,8 +16,8 @@ const App = () => {
   const client = new Client();
 
   client
-      .setEndpoint('https://cloud.appwrite.io/v1')
-      .setProject('6595a66a349338082881');
+      .setEndpoint(appwriteConfig.url)
+      .setProject(appwriteConfig.projectId);
 
   return (
     <main className="flex h-screen">
